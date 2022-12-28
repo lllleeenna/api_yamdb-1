@@ -20,7 +20,7 @@ class Category(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['-name']
+        ordering = ['name']
 
 
 class Genre(models.Model):
@@ -41,7 +41,7 @@ class Genre(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['-name']
+        ordering = ['name']
 
 
 class Title(models.Model):
@@ -52,7 +52,7 @@ class Title(models.Model):
         help_text='Введите название произведения',
         unique=True
     )
-    year = models.IntegerField(
+    year = models.PositiveIntegerField(
         verbose_name='Год выпуска произведения',
         help_text='Введите год выпуска',
         db_index=True,
@@ -60,7 +60,9 @@ class Title(models.Model):
     )
     description = models.TextField(
         verbose_name='Описание произведения',
-        help_text='Введите текст описания'
+        help_text='Введите текст описания',
+        blank=True,
+        null=True
     )
     genre = models.ManyToManyField(
         Genre,
@@ -74,20 +76,21 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         related_name='titles',
         verbose_name='Категория произведения',
-        help_text='Укажите категорию'
+        help_text='Укажите категорию',
+        null=True
     )
 
     def __str__(self):
         return self.name
 
     class Meta:
-        ordering = ['-year']
+        ordering = ['name']
 
 
 class GenreTitle(models.Model):
     """Модель для связи id произведения и id его жанра."""
-    genre = models.ForeignKey(Genre, on_delete=models.SET_NULL)
+    genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.genre} {self.title}'
+        return f'Жанр: {self.genre}, произведение: {self.title}'
