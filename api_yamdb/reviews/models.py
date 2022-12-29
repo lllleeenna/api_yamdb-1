@@ -49,7 +49,7 @@ class Genre(models.Model):
         ordering = ['name']
 
 
-class Titles(models.Model):
+class Title(models.Model):
     """Модель Произведения."""
     name = models.CharField(
         max_length=256,
@@ -95,17 +95,17 @@ class Titles(models.Model):
 class GenreTitle(models.Model):
     """Модель для связи id произведения и id его жанра."""
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True)
-    title = models.ForeignKey(Titles, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'Жанр: {self.genre}, произведение: {self.title}'
 
 
-class Reviews(models.Model):
+class Review(models.Model):
     """Модель отзывы на произведение."""
 
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         verbose_name='Произведение'
     )
@@ -133,11 +133,11 @@ class Reviews(models.Model):
         return f'{self.text[:15]} Оценка {self.score}'
 
 
-class Comments(models.Model):
+class Comment(models.Model):
     """Модель комментарии к отзывам."""
 
     review = models.ForeignKey(
-        Reviews,
+        Review,
         on_delete=models.CASCADE,
         verbose_name='Отзыв'
     )
