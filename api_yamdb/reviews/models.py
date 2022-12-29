@@ -104,7 +104,7 @@ class GenreTitle(models.Model):
 class Reviews(models.Model):
     """Модель отзывы на произведение."""
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         verbose_name='Произведение'
     )
