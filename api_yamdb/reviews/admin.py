@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-
-from .models import Comments, Reviews, Category, Genre, GenreTitle, Title
+from .models import Comment, Review, Category, Genre, GenreTitle, Title
 
 
 class TitleAdmin(admin.ModelAdmin):
@@ -12,9 +11,36 @@ class TitleAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
+class GenreAdmin(admin.ModelAdmin):
+    """Класс для работы с жанрами в админ-панели."""
+
+    list_display = ('name', 'slug')
+    search_fields = ('name',)
+    prepopulated_fields = {'slug': ('name',)}
+
+
+class CategoryAdmin(admin.ModelAdmin):
+    """Класс для работы с категориями в админ-панели."""
+
+    list_display = ('name', 'slug')
+    search_fields = ('name',)
+    prepopulated_fields = {'slug': ('name',)}
+
+
+class ReviewAdmin(admin.ModelAdmin):
+    """Класс для рабоыт с отзывами в админ-панели."""
+    list_display = ('title', 'author', 'text', 'score', 'pub_date')
+    search_fields = ('text', )
+
+class CommentsAdmin(admin.ModelAdmin):
+    """Класс для рабоыт с отзывами в админ-панели."""
+    list_display = ('review', 'author', 'text', 'pub_date')
+    search_fields = ('text', )
+
+
 admin.site.register(Title, TitleAdmin)
-admin.site.register(Genre)
-admin.site.register(Category)
+admin.site.register(Genre, GenreAdmin)
+admin.site.register(Category, CategoryAdmin)
 admin.site.register(GenreTitle)
-admin.site.register(Reviews)
-admin.site.register(Comments)
+admin.site.register(Review, ReviewAdmin)
+admin.site.register(Comment, CommentsAdmin)
