@@ -18,3 +18,9 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'username: {self.username}, email: {self.email}'
+
+
+class ConfirmationCode(models.Model):
+    username = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name='Code')
+    code = models.CharField(null=True, max_length=254)
