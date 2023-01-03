@@ -1,45 +1,29 @@
 
-from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets, status, permissions
-from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
-from rest_framework import filters
-from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import render
-from django.core.mail import send_mail
-from users.models import User
-
-from reviews.models import Category, Genre, Title, Review
-from .serializers import (
-    CategorySerializer,
-    CommentSerializer,
-    GenreSerializer,
-    TitleSerializer,
-    TitleCreateSerializer,
-    UserSerializer,
-    AdminSerializer,
-    ReviewSerializer,
-    TokenSerializer,
-    GenerateCodeSerializer
-)
-from .filters import TitleFilter
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.response import Response
-from .permissions import (
-    IsAdmin,
-    IsAdminOrReadOnly,
-    IsModeratorOrAdmin,
-    IsAuthor,
-    IsAdminOrSuperuserOrReadOnly,
-    ReviewCommentPermission
-)
 from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.pagination import (LimitOffsetPagination,
+                                       PageNumberPagination)
+from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+
+from reviews.models import Category, Genre, Review, Title
+from users.models import User
+from .filters import TitleFilter
+from .permissions import (IsAdmin, IsAdminOrReadOnly, IsAuthor,
+                          IsModeratorOrAdmin, ReviewCommentPermission)
+from .serializers import (AdminSerializer, CategorySerializer,
+                          CommentSerializer, GenerateCodeSerializer,
+                          GenreSerializer, ReviewSerializer,
+                          TitleCreateSerializer, TitleSerializer,
+                          TokenSerializer, UserSerializer)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminOrSuperuserOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = LimitOffsetPagination
@@ -49,7 +33,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminOrSuperuserOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     pagination_class = LimitOffsetPagination
@@ -59,7 +43,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminOrSuperuserOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     pagination_class = LimitOffsetPagination
@@ -190,9 +174,9 @@ def generator_token(request):
 def send_ConfirmationCode(user):
     confirmation_code = default_token_generator.make_token(user)
     return send_mail(
-            'Ваш код подтверждения',
-            f'Код подтверждения для {user.username} : {confirmation_code}.',
-            'from@yambd.com',
-            ['{user.email}'],
-            fail_silently=False,
+        'Ваш код подтверждения',
+        f'Код подтверждения для {user.username} : {confirmation_code}.',
+        'from@yambd.com',
+        ['{user.email}'],
+        fail_silently=False,
     )

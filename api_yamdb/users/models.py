@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 CHOICES_ROLE = (
     ('user', 'Пользователь'),
     ('admin', 'Администратор'),

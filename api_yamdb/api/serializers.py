@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from reviews.models import Category, Genre, GenreTitle, Comment, Review, Title
+from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
 from users.models import User
 
 
@@ -32,7 +32,7 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
-        
+
     def get_rating(self, obj):
         """возвращает в ответе вычисляемое поле - рейтинг произведения."""
         rating = obj.reviews.aggregate(Avg('score')).get('score__avg')
@@ -65,8 +65,8 @@ class TitleCreateSerializer(serializers.ModelSerializer):
         for genre in genres:
             GenreTitle.objects.create(genre=genre, title=title)
         return title
-        
-        
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     """Сериализер отзывов."""
 
@@ -145,6 +145,7 @@ class GenerateCodeSerializer(serializers.ModelSerializer):
         if data['username'] == 'me':
             raise serializers.ValidationError('Служебное имя. Выберите другое')
         return data
+
     class Meta:
         fields = ("username", "email")
         model = User
