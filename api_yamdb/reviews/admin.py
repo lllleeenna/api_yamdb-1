@@ -46,6 +46,7 @@ class CommentsAdmin(admin.ModelAdmin):
     search_fields = ('text', )
 
 
+admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Title, TitleAdmin)
 admin.site.register(Genre, GenreAdmin)

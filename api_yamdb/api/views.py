@@ -25,7 +25,6 @@ from .permissions import (
     IsAdminOrReadOnly,
     IsModeratorOrAdmin,
     IsAuthor,
-    IsAdminOrSuperuserOrReadOnly
 )
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
@@ -33,7 +32,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminOrSuperuserOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = LimitOffsetPagination
@@ -43,7 +42,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminOrSuperuserOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     pagination_class = LimitOffsetPagination
@@ -53,7 +52,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminOrSuperuserOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     pagination_class = LimitOffsetPagination
