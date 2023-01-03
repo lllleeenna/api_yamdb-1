@@ -1,11 +1,15 @@
 from django.shortcuts import render
 from django.core.mail import send_mail
-from django.utils.crypto import get_random_string
-from users.models import User, ConfirmationCode
-from .serializers import UserSerializer, AdminSerializer
-from rest_framework import viewsets
-from django.contrib import action
+from users.models import User
+from .serializers import UserSerializer, AdminSerializer, TokenSerializer,  GenerateCodeSerializer
+from rest_framework import viewsets, status, permissions
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.response import Response
+from .permissions import (IsAdmin, IsAdminOrReadOnly, IsModeratorOrAdmin, IsAuthor )
+from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import get_object_or_404
 
+from rest_framework_simplejwt.tokens import AccessToken
 
 class AdminViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -18,28 +22,61 @@ class AdminViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    #permission_classes = 
+    permission_classes = (IsAdminOrReadOnly,)
+    lookup_field = 'username'
 
-    @action(url_path='me', methods=['get','patch'], detail=False, permission_classes = ())
-    def perform_create(self, request): 
-        pass
+    def perform_create(self, serializer):
+        if not serializer.validated_data.get('role'):
+            serializer.validated_data['role'] = 'user'
+        User.objects.create_user(**serializer.validated_data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-class TokenViewSet(viewsets.ModelViewSet):
+    @action(url_path='me', methods=['get','patch'], detail=False, permission_classes = (IsAuthor,))
+    def show_user_profile(self, request):
+        if request.method == "GET":
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.method == "PATCH":
+            serializer = UserSerializer(
+                request.user,
+                data=request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @action(url_path='signup', methods=['post'], detail=False, permission_classes = ())
-    def generator_code(self, request):
-        pass
 
-    @action(url_path='signup', methods=['post'], detail=False, permission_classes = ())
-    def generator_token(self, request):
-        pass
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def generator_code(request):
+    serializer = GenerateCodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    username=serializer.validated_data["username"]
+    user = get_object_or_404(User, username=username)
+    send_ConfirmationCode(user)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def generator_token(request):
+    serializer = TokenSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    username=serializer.validated_data["username"]
+    code =serializer.validated_data["confirmation_code"]
+    user = get_object_or_404(User, username=username)
+    if default_token_generator.check_token(user, code):
+        token = AccessToken.for_user(user)
+        return Response({"token": str(token)}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def send_ConfirmationCode(user):
-    confirmation_code = get_random_string(length=16)
-   # ConfirmationCode.objects.create(user=user, code=confirmation_code)
+    confirmation_code = default_token_generator.make_token(user)
     return send_mail(
             'Ваш код подтверждения',
-            f'Код подтверждения: {confirmation_code}.',
+            f'Код подтверждения для {user.username} : {confirmation_code}.',
             'from@yambd.com',
             ['{user.email}'],
             fail_silently=False,
