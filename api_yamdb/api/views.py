@@ -1,34 +1,25 @@
-from rest_framework import viewsets, status, permissions
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework import filters
-from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import render
-from django.core.mail import send_mail
-from users.models import User
 
-from reviews.models import Category, Genre, Title
-from .serializers import (
-    CategorySerializer,
-    GenreSerializer,
-    TitleSerializer,
-    TitleCreateSerializer,
-    UserSerializer,
-    AdminSerializer,
-    TokenSerializer,
-    GenerateCodeSerializer
-)
-from .filters import TitleFilter
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.response import Response
-from .permissions import (
-    IsAdmin,
-    IsAdminOrReadOnly,
-    IsModeratorOrAdmin,
-    IsAuthor,
-)
 from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.pagination import (LimitOffsetPagination,
+                                       PageNumberPagination)
+from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+
+from reviews.models import Category, Genre, Review, Title
+from users.models import User
+from .filters import TitleFilter
+from .permissions import (IsAdmin, IsAdminOrReadOnly, IsAuthor,
+                          IsModeratorOrAdmin, ReviewCommentPermission)
+from .serializers import (AdminSerializer, CategorySerializer,
+                          CommentSerializer, GenerateCodeSerializer,
+                          GenreSerializer, ReviewSerializer,
+                          TitleCreateSerializer, TitleSerializer,
+                          TokenSerializer, UserSerializer)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -63,6 +54,53 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method in ('POST', 'PATCH', 'DELETE'):
             return TitleCreateSerializer
         return TitleSerializer
+
+
+class ReviewsViewSet(viewsets.ModelViewSet):
+    """Получение списка отзывов, одного отзыва. Создание отзыва.
+    Изменение и удаление отзыва.
+    """
+
+    serializer_class = ReviewSerializer
+    pagination_class = PageNumberPagination
+    permission_classes = (ReviewCommentPermission,)
+
+    def get_title(self):
+        return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            title=self.get_title()
+        )
+
+    def get_queryset(self):
+        return self.get_title().reviews.all()
+
+
+class CommentsViewSet(viewsets.ModelViewSet):
+    """Получение списка комментариев к отзыву, одного комментария.
+    Создание комментария. Изменение и удаление комментария.
+    """
+
+    serializer_class = CommentSerializer
+    pagination_class = PageNumberPagination
+    permission_classes = (ReviewCommentPermission,)
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            review=get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        )
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        review = get_object_or_404(
+            Review,
+            pk=self.kwargs.get('review_id'),
+            title=title
+        )
+        return review.comments.all()
 
 
 class AdminViewSet(viewsets.ModelViewSet):
@@ -136,9 +174,9 @@ def generator_token(request):
 def send_ConfirmationCode(user):
     confirmation_code = default_token_generator.make_token(user)
     return send_mail(
-            'Ваш код подтверждения',
-            f'Код подтверждения для {user.username} : {confirmation_code}.',
-            'from@yambd.com',
-            ['{user.email}'],
-            fail_silently=False,
+        'Ваш код подтверждения',
+        f'Код подтверждения для {user.username} : {confirmation_code}.',
+        'from@yambd.com',
+        ['{user.email}'],
+        fail_silently=False,
     )
