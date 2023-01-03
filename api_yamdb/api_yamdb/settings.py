@@ -23,9 +23,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'reviews',
+    'reviews.apps.ReviewsConfig',
     'rest_framework.authtoken',
+<<<<<<< HEAD
     'rest_framework_simplejwt',
+=======
+
+>>>>>>> 7ced0bb29dd0fb22dbc7e898e4a3856a4e8ef3a5
 ]
 
 MIDDLEWARE = [
@@ -90,7 +94,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 
@@ -107,6 +111,9 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
+
+AUTH_USER_MODEL = 'users.User'
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -117,6 +124,7 @@ REST_FRAMEWORK = {
     ]
 }
 
+<<<<<<< HEAD
 AUTH_USER_MODEL = 'users.User'
 
 SIMPLE_JWT = {
@@ -126,3 +134,5 @@ SIMPLE_JWT = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+=======
+>>>>>>> 7ced0bb29dd0fb22dbc7e898e4a3856a4e8ef3a5
