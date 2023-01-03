@@ -7,7 +7,7 @@ class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор для модели Category."""
 
     class Meta:
-        fields = '__all__'
+        exclude = ('id',)
         model = Category
 
 
@@ -15,7 +15,7 @@ class GenreSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Genre."""
 
     class Meta:
-        fields = '__all__'
+        exclude = ('id',)
         model = Genre
 
 

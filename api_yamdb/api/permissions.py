@@ -3,7 +3,7 @@ from rest_framework import permissions
 
 class IsAdminOrSuperuserOrReadOnly(permissions.BasePermission):
     """Разрешение, позволяющее редактировать объект только
-    админитратору.
+    администратору.
     """
 
     def has_permission(self, request, view):
