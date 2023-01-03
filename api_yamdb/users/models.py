@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-
 CHOICES_ROLE = (
     ('user', 'Пользователь'),
     ('admin', 'Администратор'),
@@ -17,7 +16,9 @@ class User(AbstractUser):
         help_text="Напишите несколько строк о себе"
     )
     role = models.CharField(
-        max_length=16, choices=CHOICES_ROLE, default='user'
+        max_length=16,
+        choices=CHOICES_ROLE,
+        default='user'
     )
 
     def __str__(self):
