@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 ROLE = ('admin', 'moderator')
-DANGEROUS_METHOD = ('PUT', 'PUTCH', 'DELETE')
+DANGEROUS_METHOD = ('PUT', 'PATCH', 'DELETE')
 
 
 class ReviewCommentPermission(permissions.BasePermission):
