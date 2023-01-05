@@ -63,12 +63,6 @@ class Title(models.Model):
         db_index=True,
         validators=[validate_year]
     )
-    description = models.TextField(
-        verbose_name='Описание произведения',
-        help_text='Введите текст описания',
-        blank=True,
-        null=True
-    )
     genre = models.ManyToManyField(
         Genre,
         through='GenreTitle',
@@ -84,6 +78,12 @@ class Title(models.Model):
         help_text='Укажите категорию',
         null=True
     )
+    description = models.TextField(
+        verbose_name='Описание произведения',
+        help_text='Введите текст описания',
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.name
@@ -94,8 +94,8 @@ class Title(models.Model):
 
 class GenreTitle(models.Model):
     """Модель для связи id произведения и id его жанра."""
-    genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return f'Жанр: {self.genre}, произведение: {self.title}'
@@ -110,13 +110,13 @@ class Review(models.Model):
         related_name='reviews',
         verbose_name='Произведение'
     )
+    text = models.TextField(verbose_name='Текст отзыва')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Автор отзыва'
     )
-    text = models.TextField(verbose_name='Текст отзыва')
     score = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(10)]
     )

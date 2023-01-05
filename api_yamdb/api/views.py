@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
+from .mixins import CreateListDestroyViewSet
 
 from .filters import TitleFilter
 from .permissions import (IsAdmin, IsAdminOrReadOnly, IsAuthor,
@@ -23,7 +24,7 @@ from .serializers import (AdminSerializer, CategorySerializer,
                           TokenSerializer, UserSerializer)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(CreateListDestroyViewSet):
     permission_classes = [IsAdminOrReadOnly]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -33,7 +34,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(CreateListDestroyViewSet):
     permission_classes = [IsAdminOrReadOnly]
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
@@ -118,7 +119,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdmin, )
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
-    search_fields = ['username',]
+    search_fields = ['username', ]
     http_method_names = ['get', 'post', 'patch', 'delete', 'head']
 
     def perform_create(self, serializer):
