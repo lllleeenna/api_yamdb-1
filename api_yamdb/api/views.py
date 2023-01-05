@@ -15,8 +15,7 @@ from users.models import User
 from .mixins import CreateListDestroyViewSet
 
 from .filters import TitleFilter
-from .permissions import (IsAdmin, IsAdminOrReadOnly, IsAuthor,
-                          ReviewCommentPermission)
+from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthor
 from .serializers import (AdminSerializer, CategorySerializer,
                           CommentSerializer, GenerateCodeSerializer,
                           GenreSerializer, ReviewSerializer,
@@ -65,7 +64,7 @@ class ReviewsViewSet(viewsets.ModelViewSet):
 
     serializer_class = ReviewSerializer
     pagination_class = PageNumberPagination
-    permission_classes = (ReviewCommentPermission,)
+    permission_classes = (IsAuthor,)
 
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -87,7 +86,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
     serializer_class = CommentSerializer
     pagination_class = PageNumberPagination
-    permission_classes = (ReviewCommentPermission,)
+    permission_classes = (IsAuthor, )
 
     def perform_create(self, serializer):
         serializer.save(
