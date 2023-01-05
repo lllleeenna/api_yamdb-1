@@ -1,5 +1,6 @@
 
 from django.contrib.auth.tokens import default_token_generator
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -9,14 +10,12 @@ from rest_framework.pagination import (LimitOffsetPagination,
                                        PageNumberPagination)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework import filters
 from reviews.models import Category, Genre, Review, Title
-from users.models import User, CHOICES_ROLE
+from users.models import User
+
 from .filters import TitleFilter
-from rest_framework import mixins, viewsets
-from django.core.exceptions import ObjectDoesNotExist
 from .permissions import (IsAdmin, IsAdminOrReadOnly, IsAuthor,
-                          IsModeratorOrAdmin, ReviewCommentPermission)
+                          ReviewCommentPermission)
 from .serializers import (AdminSerializer, CategorySerializer,
                           CommentSerializer, GenerateCodeSerializer,
                           GenreSerializer, ReviewSerializer,
@@ -132,16 +131,11 @@ class UserViewSet(viewsets.ModelViewSet):
         url_path='me',
         methods=['get', 'patch'],
         detail=False,
-        permission_classes=(IsAuthor, )
+        permission_classes=(IsAuthor, permissions.IsAuthenticated)
     )
     def show_user_profile(self, request):
-        if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         if request.method == "GET":
-            print('111')
-            print(request.user.is_authenticated)
             serializer = UserSerializer(request.user)
-            print('222')
             return Response(serializer.data, status=status.HTTP_200_OK)
         if request.method == "PATCH":
             serializer = UserSerializer(
@@ -158,26 +152,22 @@ class UserViewSet(viewsets.ModelViewSet):
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def generator_code(request):
-    
+    serializer = GenerateCodeSerializer(data=request.data)
     username = request.data.get('username')
     email = request.data.get('email')
     try:
-        user= User.objects.get(username=username, email=email)
+        user = User.objects.get(username=username, email=email)
     except ObjectDoesNotExist:
-        user= None
+        user = None
     if user:
-        
         send_ConfirmationCode(user)
-        
-        message='Данный пользователь уже зарегистрирован. Сообщение с кодом отправлено на почту.'
+        message = ('Данный пользователь уже зарегистрирован.'
+                   'Сообщение с кодом отправлено на почту.')
         return Response(message, status=status.HTTP_200_OK)
-    serializer = GenerateCodeSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         serializer.save()
         username = serializer.validated_data["username"]
         user = get_object_or_404(User, username=username)
-        print('1111')
-        print(user.last_login)
         send_ConfirmationCode(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -187,7 +177,6 @@ def generator_code(request):
 @permission_classes([permissions.AllowAny])
 def generator_token(request):
     serializer = TokenSerializer(data=request.data)
-    
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data["username"]
     code = serializer.validated_data["confirmation_code"]
@@ -200,9 +189,6 @@ def generator_token(request):
 
 def send_ConfirmationCode(user):
     confirmation_code = default_token_generator.make_token(user)
-    print(confirmation_code)
-    print(user.username)
-    print(user.email)
     return send_mail(
         'Ваш код подтверждения',
         f'Код подтверждения для {user.username} : {confirmation_code}.',
