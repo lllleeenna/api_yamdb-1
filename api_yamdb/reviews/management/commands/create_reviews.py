@@ -18,7 +18,6 @@ class Command(BaseCommand):
     manage.py create_review --overwrite - полностью перезаписывает данные в БД.
     python manage.py create_reviews --overwrite --table name_table
     - перезаписывает данные в таблице name_table.
-
     """
     help = (
         'используйте: manage.py create_review'
@@ -84,12 +83,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         overwrite = options.get('overwrite')
         table = options.get('table')
-        print(table, overwrite)
 
-        # --overwrite --table name_table
+        # --overwrite --table
         if overwrite and table:
             param_load = self.PARAMETERS_LOADING_LIST.get(table)
-            # param_load['model'].objects.all().delete()
             self.loading_data(**param_load)
             return f'Данные в таблице {table} перезаписаны.'
 
@@ -97,11 +94,10 @@ class Command(BaseCommand):
         if overwrite and not table:
             for table_name in self.PARAMETERS_LOADING_LIST:
                 param_load = self.PARAMETERS_LOADING_LIST[table_name]
-                # param_load['model'].objects.all().delete()
                 self.loading_data(**param_load)
             return 'Данные в БД перезаписаны.'
 
-        # --table name_table
+        # --table
         if table and not overwrite:
             param_load = self.PARAMETERS_LOADING_LIST.get(table)
             if param_load['model'].objects.count() > 0:
@@ -109,7 +105,8 @@ class Command(BaseCommand):
                     f'Таблица {table} содержит данные,'
                     ' если вы хотите перезаписать данные в таблице,'
                     ' используйте команду: \n'
-                    'python manage.py --overwrite --table name_table'
+                    'python manage.py create_reviews --overwrite --table'
+                    f' {table}'
                 )
             self.loading_data(**param_load)
             return 'Данные в таблицу {table} записаны.'
@@ -120,7 +117,7 @@ class Command(BaseCommand):
                 return (
                     f'БД содержит данные, если вы хотите'
                     ' перезаписать данные в таблицах, используйте команду \n'
-                    'python manage.py --overwrite'
+                    'python manage.py create_reviews --overwrite'
                 )
 
         for table_name in self.PARAMETERS_LOADING_LIST:
