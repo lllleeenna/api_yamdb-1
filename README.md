@@ -1,5 +1,5 @@
-## Проект «CRUD для Yatube»
-
+## Проект «CRUD для YaMDb»
+Проект YaMDb собирает отзывы пользователей на произведения. 
 
 ### Как запустить проект:
 
@@ -88,4 +88,30 @@ sqlite3
 ``` 
 ```
 .import --csv --skip 1 C:/Dev/api_yamdb/api_yamdb/static/data/users.csv users_user
+```
+
+### Заполнение базы данных контентом с использованием manage.py
+В папке /static/data/ находятся csv файлы с тестовыми данными для проекта YaMDb.
+
+Для заполнения пустой БД введите команду:
+```
+python manage.py create_reviews
+```
+
+Для заполнения одной таблицы, используйте аргумент -t(--table)
+Команда:
+```
+python manage.py create_reviews --table category
+```
+заполнить тестовыми данными таблицу category.
+
+Если ваша БД содержит тестовые данные и вы действительно хотите их перезаписать
+используйте аргумент --overwrite:
+```
+python manage.py create_reviews --overwrite
+```
+
+Для перезаписи данных одной таблицы используйтет команду:
+```
+python manage.py create_reviews --overwrite --table name_table
 ```

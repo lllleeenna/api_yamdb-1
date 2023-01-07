@@ -135,7 +135,7 @@ class Review(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.text[:15]} Оценка {self.score}'
+        return f'{self.text[:15]}'
 
 
 class Comment(models.Model):
