@@ -74,7 +74,7 @@ class Command(BaseCommand):
                 try:
                     m = model(**record)
                     m.save()
-                except:
+                except csv.Error:
                     print(
                         f'запись из файла {fdata.name}:'
                         f' {record} содержит ошибки и не была занесена в БД.'
@@ -101,7 +101,7 @@ class Command(BaseCommand):
         if table and not overwrite:
             param_load = self.PARAMETERS_LOADING_LIST.get(table)
             if param_load['model'].objects.count() > 0:
-                return(
+                return (
                     f'Таблица {table} содержит данные,'
                     ' если вы хотите перезаписать данные в таблице,'
                     ' используйте команду: \n'
@@ -115,7 +115,7 @@ class Command(BaseCommand):
             param_load = self.PARAMETERS_LOADING_LIST[table_name]
             if param_load['model'].objects.count() > 0:
                 return (
-                    f'БД содержит данные, если вы хотите'
+                    'БД содержит данные, если вы хотите'
                     ' перезаписать данные в таблицах, используйте команду \n'
                     'python manage.py create_reviews --overwrite'
                 )

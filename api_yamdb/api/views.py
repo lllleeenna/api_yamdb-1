@@ -104,15 +104,11 @@ class CommentsViewSet(viewsets.ModelViewSet):
         return review.comments.all()
 
 
-class AdminViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = AdminSerializer
-
-    def perform_create(self, serializer):
-        serializer.save()
-
-
 class UserViewSet(viewsets.ModelViewSet):
+    """Получение всех пользователей, добавление пользователя администратором.
+    Получение, изменение и удаление пользователя по username администратором.
+    Получение и изменение данных своей учетной записи пользователем.
+    """
     queryset = User.objects.all()
     serializer_class = AdminSerializer
     permission_classes = (IsAdmin, )
@@ -152,6 +148,9 @@ class UserViewSet(viewsets.ModelViewSet):
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def generator_code(request):
+    """Получение кода подтверждения на переданный email.
+    Получение кода подтверждения уже зарегистрированному пользователю.
+    """
     serializer = GenerateCodeSerializer(data=request.data)
     username = request.data.get('username')
     email = request.data.get('email')
@@ -176,6 +175,7 @@ def generator_code(request):
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def generator_token(request):
+    """Получение JWT-токена в обмен на username и confirmation code."""
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data["username"]
@@ -188,6 +188,7 @@ def generator_token(request):
 
 
 def send_ConfirmationCode(user):
+    """Получение кода и отправка письма."""
     confirmation_code = default_token_generator.make_token(user)
     return send_mail(
         'Ваш код подтверждения',

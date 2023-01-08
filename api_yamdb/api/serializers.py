@@ -111,6 +111,9 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class AdminSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели User.
+    Права доступа: Администратор.
+    """
 
     class Meta:
         fields = ("username", "email", "first_name",
@@ -119,6 +122,9 @@ class AdminSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели User.
+    Права доступа: Любой авторизованный пользователь.
+    """
 
     class Meta:
         fields = ("username", "email", "first_name",
@@ -128,11 +134,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.Serializer):
+    """Сериализатор получения JWT-токена"""
+
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
 
 class GenerateCodeSerializer(serializers.ModelSerializer):
+    """Сериализатор регистрации пользователей и выдачи токенов"""
 
     def validate(self, data):
         if data['username'] == 'me':
