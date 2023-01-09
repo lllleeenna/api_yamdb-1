@@ -3,7 +3,7 @@ import csv
 from api_yamdb.settings import BASE_DIR
 from django.core.management.base import BaseCommand
 
-from reviews.models import Category, Genre, Title, Review, Comment, GenreTitle
+from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
 from users.models import User
 
 
@@ -74,10 +74,11 @@ class Command(BaseCommand):
                 try:
                     m = model(**record)
                     m.save()
-                except csv.Error:
+                except Exception as ex:
                     print(
                         f'запись из файла {fdata.name}:'
                         f' {record} содержит ошибки и не была занесена в БД.'
+                        f' Возникло исключение {ex}.'
                     )
 
     def handle(self, *args, **options):
