@@ -82,3 +82,7 @@ python manage.py create_reviews --overwrite
 ```
 python manage.py create_reviews --overwrite --table name_table
 ```
+### Авторы:
+1. 
+2. Дивногорская Ольга (https://github.com/OlyaDiv)
+3. 
