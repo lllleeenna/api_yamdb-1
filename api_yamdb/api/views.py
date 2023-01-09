@@ -24,27 +24,32 @@ from .serializers import (AdminSerializer, CategorySerializer,
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
-    permission_classes = [IsAdminOrReadOnly]
+    """Получение списка категорий, создание и удаление категории."""
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
+    search_fields = ('=name',)
     lookup_field = 'slug'
 
 
 class GenreViewSet(CreateListDestroyViewSet):
-    permission_classes = [IsAdminOrReadOnly]
+    """Получение списка жанров, создание и удаление жанра."""
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
+    search_fields = ('=name',)
     lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminOrReadOnly]
+    """Получение списка произведений, одного произведения.
+    Создание, изменение и удаление произведения.
+    """
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
     pagination_class = LimitOffsetPagination
@@ -52,9 +57,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.request.method in ('POST', 'PATCH', 'DELETE'):
-            return TitleCreateSerializer
-        return TitleSerializer
+        if self.action in ("retrieve", "list"):
+            return TitleSerializer
+        return TitleCreateSerializer
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
