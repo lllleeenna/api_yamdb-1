@@ -1,4 +1,5 @@
 
+from django.db.models import Avg
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
@@ -10,17 +11,17 @@ from rest_framework.pagination import (LimitOffsetPagination,
                                        PageNumberPagination)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+
 from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from .mixins import CreateListDestroyViewSet
-
-from .filters import TitleFilter
-from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthor
-from .serializers import (AdminSerializer, CategorySerializer,
-                          CommentSerializer, GenerateCodeSerializer,
-                          GenreSerializer, ReviewSerializer,
-                          TitleCreateSerializer, TitleSerializer,
-                          TokenSerializer, UserSerializer)
+from api.filters import TitleFilter
+from api.mixins import CreateListDestroyViewSet
+from api.permissions import IsAdmin, IsAdminOrReadOnly, IsAuthor
+from api.serializers import (AdminSerializer, CategorySerializer,
+                             CommentSerializer, GenerateCodeSerializer,
+                             GenreSerializer, ReviewSerializer,
+                             TitleCreateSerializer, TitleSerializer,
+                             TokenSerializer, UserSerializer)
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
@@ -50,7 +51,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     Создание, изменение и удаление произведения.
     """
     permission_classes = (IsAdminOrReadOnly,)
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
@@ -63,7 +64,8 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
-    """Получение списка отзывов, одного отзыва. Создание отзыва.
+    """
+    Получение списка отзывов, одного отзыва. Создание отзыва.
     Изменение и удаление отзыва.
     """
 
@@ -85,7 +87,8 @@ class ReviewsViewSet(viewsets.ModelViewSet):
 
 
 class CommentsViewSet(viewsets.ModelViewSet):
-    """Получение списка комментариев к отзыву, одного комментария.
+    """
+    Получение списка комментариев к отзыву, одного комментария.
     Создание комментария. Изменение и удаление комментария.
     """
 
@@ -93,20 +96,21 @@ class CommentsViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     permission_classes = (IsAuthor, )
 
+    def get_review(self):
+        return get_object_or_404(
+            Review,
+            pk=self.kwargs.get('review_id'),
+            title__id=self.kwargs.get('title_id')
+        )
+
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user,
-            review=get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+            review=self.get_review()
         )
 
     def get_queryset(self):
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        review = get_object_or_404(
-            Review,
-            pk=self.kwargs.get('review_id'),
-            title=title
-        )
-        return review.comments.all()
+        return self.get_review().comments.all()
 
 
 class UserViewSet(viewsets.ModelViewSet):

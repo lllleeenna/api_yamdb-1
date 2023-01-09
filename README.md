@@ -85,4 +85,4 @@ python manage.py create_reviews --overwrite --table name_table
 ### Авторы:
 1. Лещикова Татьяна (https://github.com/LeschikovaTatyana)
 2. Дивногорская Ольга (https://github.com/OlyaDiv)
-3. 
+3. Смурова Елена (https://github.com/lllleeenna)
