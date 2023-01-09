@@ -56,39 +56,6 @@ python3 manage.py migrate
 ```
 python3 manage.py runserver
 ```
-### Заполнение базы данных контентом из приложенных csv-файлов. 
-- Загрузите SQlite на ваше ПО:
-https://sqlite.com/download.html
-- Введите в терминале:
-```
-sqlite3
-```
-- Подключитесь к базе данных:
-```
-.open db.sqlite3
-``` 
-- Далее по очереди вводите команды для импорта:
-```
-.import --csv --skip 1 C:/Dev/api_yamdb/api_yamdb/static/data/category.csv reviews_category
-``` 
-```
-.import --csv --skip 1 C:/Dev/api_yamdb/api_yamdb/static/data/genre.csv reviews_genre
-``` 
-```
-.import --csv --skip 1 C:/Dev/api_yamdb/api_yamdb/static/data/titles.csv reviews_title
-``` 
-```
-.import --csv --skip 1 C:/Dev/api_yamdb/api_yamdb/static/data/genre_title.csv reviews_genretitle
-``` 
-```
-.import --csv --skip 1 C:/Dev/api_yamdb/api_yamdb/static/data/review.csv reviews_review
-``` 
-```
-.import --csv --skip 1 C:/Dev/api_yamdb/api_yamdb/static/data/comments.csv reviews_comment
-``` 
-```
-.import --csv --skip 1 C:/Dev/api_yamdb/api_yamdb/static/data/users.csv users_user
-```
 
 ### Заполнение базы данных контентом с использованием manage.py
 В папке /static/data/ находятся csv файлы с тестовыми данными для проекта YaMDb.
@@ -115,3 +82,7 @@ python manage.py create_reviews --overwrite
 ```
 python manage.py create_reviews --overwrite --table name_table
 ```
+### Авторы:
+1. 
+2. Дивногорская Ольга (https://github.com/OlyaDiv)
+3. 

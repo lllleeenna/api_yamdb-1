@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 
@@ -24,7 +24,7 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор для чтения модели Title."""
     genre = GenreSerializer(many=True)
-    category = CategorySerializer()
+    category = CategorySerializer(read_only=True)
     rating = serializers.IntegerField(
         read_only=True,
     )
@@ -49,13 +49,6 @@ class TitleCreateSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
-
-    def create(self, validated_data):
-        genres = validated_data.pop('genre')
-        title = Title.objects.create(**validated_data)
-        for genre in genres:
-            GenreTitle.objects.create(genre=genre, title=title)
-        return title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -104,6 +97,9 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class AdminSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели User.
+    Права доступа: Администратор.
+    """
 
     class Meta:
         fields = ("username", "email", "first_name",
@@ -112,6 +108,9 @@ class AdminSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели User.
+    Права доступа: Любой авторизованный пользователь.
+    """
 
     class Meta:
         fields = ("username", "email", "first_name",
@@ -121,11 +120,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.Serializer):
+    """Сериализатор получения JWT-токена"""
+
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
 
 class GenerateCodeSerializer(serializers.ModelSerializer):
+    """Сериализатор регистрации пользователей и выдачи токенов"""
 
     def validate(self, data):
         if data['username'] == 'me':

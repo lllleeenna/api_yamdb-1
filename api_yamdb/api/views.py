@@ -25,27 +25,32 @@ from api.serializers import (AdminSerializer, CategorySerializer,
 
 
 class CategoryViewSet(CreateListDestroyViewSet):
-    permission_classes = [IsAdminOrReadOnly]
+    """Получение списка категорий, создание и удаление категории."""
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
+    search_fields = ('=name',)
     lookup_field = 'slug'
 
 
 class GenreViewSet(CreateListDestroyViewSet):
-    permission_classes = [IsAdminOrReadOnly]
+    """Получение списка жанров, создание и удаление жанра."""
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
+    search_fields = ('=name',)
     lookup_field = 'slug'
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminOrReadOnly]
+    """Получение списка произведений, одного произведения.
+    Создание, изменение и удаление произведения.
+    """
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
     pagination_class = LimitOffsetPagination
@@ -53,9 +58,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.request.method in ('POST', 'PATCH', 'DELETE'):
-            return TitleCreateSerializer
-        return TitleSerializer
+        if self.action in ("retrieve", "list"):
+            return TitleSerializer
+        return TitleCreateSerializer
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
@@ -108,15 +113,11 @@ class CommentsViewSet(viewsets.ModelViewSet):
         return self.get_review().comments.all()
 
 
-class AdminViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = AdminSerializer
-
-    def perform_create(self, serializer):
-        serializer.save()
-
-
 class UserViewSet(viewsets.ModelViewSet):
+    """Получение всех пользователей, добавление пользователя администратором.
+    Получение, изменение и удаление пользователя по username администратором.
+    Получение и изменение данных своей учетной записи пользователем.
+    """
     queryset = User.objects.all()
     serializer_class = AdminSerializer
     permission_classes = (IsAdmin, )
@@ -156,6 +157,9 @@ class UserViewSet(viewsets.ModelViewSet):
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def generator_code(request):
+    """Получение кода подтверждения на переданный email.
+    Получение кода подтверждения уже зарегистрированному пользователю.
+    """
     serializer = GenerateCodeSerializer(data=request.data)
     username = request.data.get('username')
     email = request.data.get('email')
@@ -180,6 +184,7 @@ def generator_code(request):
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def generator_token(request):
+    """Получение JWT-токена в обмен на username и confirmation code."""
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     username = serializer.validated_data["username"]
@@ -192,6 +197,7 @@ def generator_token(request):
 
 
 def send_ConfirmationCode(user):
+    """Получение кода и отправка письма."""
     confirmation_code = default_token_generator.make_token(user)
     return send_mail(
         'Ваш код подтверждения',

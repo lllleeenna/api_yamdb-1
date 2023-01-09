@@ -10,6 +10,7 @@ CHOICES_ROLE = (
 
 
 class User(AbstractUser):
+    """Модель Пользователя."""
     email = models.EmailField(max_length=254, unique=True)
     bio = models.TextField(
         null=True,

@@ -5,6 +5,7 @@ from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
 
 
 class TitleAdmin(admin.ModelAdmin):
+    """Класс для работы с произведениями в админ-панели."""
     list_display = ('pk', 'name', 'year', 'description', 'category',)
     list_editable = ('category',)
     search_fields = ('name',)
@@ -13,6 +14,7 @@ class TitleAdmin(admin.ModelAdmin):
 
 
 class UserAdmin(admin.ModelAdmin):
+    """Класс для работы с пользователями в админ-панели."""
     list_display = ('username', 'email', 'first_name',
                     'last_name', 'bio', 'role')
     search_fields = ('username', 'email')
@@ -48,7 +50,6 @@ class CommentsAdmin(admin.ModelAdmin):
     search_fields = ('text', )
 
 
-admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Title, TitleAdmin)
 admin.site.register(Genre, GenreAdmin)

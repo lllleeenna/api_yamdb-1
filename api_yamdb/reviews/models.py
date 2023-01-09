@@ -21,11 +21,13 @@ class Category(models.Model):
         unique=True
     )
 
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+        ordering = ['name']
+
     def __str__(self):
         return self.name
-
-    class Meta:
-        ordering = ['name']
 
 
 class Genre(models.Model):
@@ -42,11 +44,13 @@ class Genre(models.Model):
         unique=True
     )
 
+    class Meta:
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
+        ordering = ['name']
+
     def __str__(self):
         return self.name
-
-    class Meta:
-        ordering = ['name']
 
 
 class Title(models.Model):
@@ -85,17 +89,23 @@ class Title(models.Model):
         null=True
     )
 
+    class Meta:
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
+        ordering = ['name']
+
     def __str__(self):
         return self.name
-
-    class Meta:
-        ordering = ['name']
 
 
 class GenreTitle(models.Model):
     """Модель для связи id произведения и id его жанра."""
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        verbose_name = 'Жанр и произведение'
+        verbose_name_plural = 'Жанры и произведения'
 
     def __str__(self):
         return f'Жанр: {self.genre}, произведение: {self.title}'
