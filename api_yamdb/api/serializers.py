@@ -1,6 +1,6 @@
-from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+
 from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
 from users.models import User
 
@@ -25,20 +25,13 @@ class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор для чтения модели Title."""
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(
+        read_only=True,
+    )
 
     class Meta:
         fields = '__all__'
         model = Title
-
-    def get_rating(self, obj):
-        """возвращает в ответе вычисляемое поле - рейтинг произведения."""
-        rating = obj.reviews.aggregate(Avg('score')).get('score__avg')
-
-        if rating:
-            return int(rating)
-
-        return None
 
 
 class TitleCreateSerializer(serializers.ModelSerializer):
