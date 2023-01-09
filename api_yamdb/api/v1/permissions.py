@@ -36,7 +36,7 @@ class IsAdmin(permissions.BasePermission):
         )
 
 
-class IsAuthor(permissions.BasePermission):
+class IsAuthorAdminModeratorOrReadOnly(permissions.BasePermission):
     """
     Пользовательское разрешение позволяющее смотреть - всем,
     создавать - авторизованным пользователям,

@@ -78,7 +78,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Вы не можете создать два отзыва на одно произведение.'
                 )
-
         return super().validate(attrs)
 
 
@@ -129,11 +128,11 @@ class TokenSerializer(serializers.Serializer):
 class GenerateCodeSerializer(serializers.ModelSerializer):
     """Сериализатор регистрации пользователей и выдачи токенов"""
 
+    class Meta:
+        fields = ("username", "email")
+        model = User
+
     def validate(self, data):
         if data['username'] == 'me':
             raise serializers.ValidationError('Служебное имя. Выберите другое')
         return data
-
-    class Meta:
-        fields = ("username", "email")
-        model = User
